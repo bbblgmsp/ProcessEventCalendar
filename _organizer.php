@@ -3,35 +3,26 @@
 include 'index.php';
 
 // ORGANIZER
-if ($input->get('y')) $y = (int)$input->get('y'); else $y = date('Y');
-if ($input->get('m')) $m = (int)$input->get('m'); else $m = date('m');
-if ($input->get('d')) $d = (int)$input->get('d'); else $d = date('d');
+if (isset($_GET['y'])) {$y = (int)$_GET['y'];} else {$y = date('y');}
+if (isset($_GET['m'])) {$m = (int)$_GET['m'];} else {$y = date('m');}
+if (isset($_GET['d'])) {$d = (int)$_GET['d'];} else {$y = date('d');}
 
 // all events
-$all_events = $pages->find("template=event");
+$all_events = $pages("template=event");
     
 // some day
 $some_day = $y.'-'.$m.'-'.$d;
-$some_day = $pages->find("template=event, date_start<=$some_day, date_end>=$some_day, sort=date_start");    
+$some_day = $pages("template=event, date_start<=$some_day, date_end>=$some_day, sort=date_start");    
 
 // month
 $month_start = $y.'-'.$m.'-01';
 $month_end = $y.'-'.$m.'-'.date("t", mktime(0,0,0,$m,1,$y));
 //$sortout_past = false;
     
-$month_overview = $pages->find("template=event, (date_start<=$month_start, date_end>=$month_start), (date_start>=$month_start, date_end<=$month_end), (date_start<=$month_end, date_end>=$month_end), sort=date_start");
-
-// month
-$year_start = $y.'-01-01';
-$year_end = $y.'-12-31';
-//$sortout_past = false;
-
-$year_overview = $pages->find("template=event, (date_start<=$year_start, date_end>=$year_start), (date_start>=$year_start, date_end<=$year_end), (date_start<=$year_end, date_end>=$year_end), sort=date_start");
-
+$month_overview = $pages("template=event, (date_start<=$month_start, date_end>=$month_start), (date_start>=$month_start, date_end<=$month_end), (date_start<=$month_end, date_end>=$month_end), sort=date_start");
 
 if ($y != '0' && $m != '0' && $d != '0') $events = $some_day;
 if ($y != '0' && $m != '0' && $d == '0') $events = $month_overview;
-if ($y != '0' && $m == '0' && $d == '0') $events = $year_overview;
 
 ?>
 
@@ -39,10 +30,9 @@ if ($y != '0' && $m == '0' && $d == '0') $events = $year_overview;
 
 <?php
 
-echo events($events, $m); 
+echo events($events); 
 
-
-function events($items, $m) { ?>
+function events($items) { ?>
     
     <div class="uk-margin-medium">
         

@@ -1,6 +1,6 @@
 # ProcessEventCalendar
 
-events.php is the ProcessWire-template where the buttons are located.
+events.php is the ProcessWire-template where the buttons are located.<br/>
 monthview.php is the ajax-loaded file for the month-calendar
 organizer.php is the ajax loaded file for the events-listing
 cal.js is the javascript that handles the ajax requests and changes the classes and titles of whatever is active or "current"

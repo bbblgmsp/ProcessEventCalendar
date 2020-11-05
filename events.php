@@ -28,17 +28,22 @@
             uk-tooltip="title: next month; delay: 500" 
             uk-icon="icon: triangle-right"></button>
 
-            
+            <!-- 
+            this needs work, a switch for a month overview (which works already) and a year view. 
+            clicking year-view will ditch the month calendar on the left, expand the organizer layout and list all events in that year in a table layout.
+            Also, it would change the button#monthbutton (above) to button#yearbutton and clicking it would show a year overview of all events of the current year. 
+            Clicking the left/right arrows would then switch the year.
+
             <button 
             class="uk-button switches current" 
-            id="monthbutton" 
+            id="monthviewbutton" 
             uk-tooltip="title: Month view; delay: 500">Month</button>
             
             <button 
             class="uk-button-default uk-button switches" 
-            id="yearbutton" 
+            id="yearviewbutton" 
             uk-tooltip="title: Year view; delay: 500">Year</button>
-            
+            -->
 
             
         </div>

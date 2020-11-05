@@ -19,3 +19,4 @@ cal.js is the javascript that handles the ajax requests and changes the classes 
 
 <p>This is my first time contributing code. It kind of works but it's far from perfect, so I appreciate all (kind) input :D</p>
 
+you can have a demo here: http://foobar.roofaccess.org/events/

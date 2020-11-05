@@ -28,13 +28,13 @@ window.onload = function() {
     var previousMonth = document.getElementById('past');
     var nextMonth = document.getElementById('future');
     var monthbutton = document.getElementById('monthbutton');
-    var yearbutton = document.getElementById('yearbutton');
+    // var yearbutton = document.getElementById('yearbutton');
     
     todaybutton.addEventListener('click', today);
     previousMonth.addEventListener('click', thePrevious);
     nextMonth.addEventListener('click', theNext);
     monthbutton.addEventListener('click', getMonth);
-    yearbutton.addEventListener('click', getYear);
+    // yearbutton.addEventListener('click', getYear);
 
     getMonth();
     
@@ -59,10 +59,6 @@ window.onload = function() {
         monthbutton.classList.remove("current");
         if(temp) {temp.classList.remove("current");}
         todaybutton.classList.add("current");
-        if (todaynumber) {
-            console.log(d);
-            todaynumber[0].classList.add("current");
-        };
     }
 
     function assignClicks() {
@@ -71,7 +67,6 @@ window.onload = function() {
             occasions[i].addEventListener('click', someDay);
         };
         document.getElementById("monthbutton").innerHTML = year[m];
-        todaynumber = document.getElementsByClassName("present");
     }
     
     function thePrevious() {
@@ -148,6 +143,7 @@ window.onload = function() {
         }
     }    
     
+    /*
     function getYear() {
         d = '0';
         m = '0';
@@ -162,6 +158,7 @@ window.onload = function() {
             calSwitch.send(null);
         }
     }
+    */
     
     // what to do when server responded
 

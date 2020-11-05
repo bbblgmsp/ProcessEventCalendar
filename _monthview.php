@@ -21,7 +21,7 @@ $lmd = $first-1;
 if ($first == 0) {$lmd = 6;}
 $nmd = 7-$last; ?>
 
-<h2 id="currentmonth" class="" title="<?=$m?>-<?=$y?>"><?=$m?> / <?=$y?></h2><div class="monthdays"><table id="monthdays">
+<h2 id="currentmonth" class="" title="<?=$m?>-<?=$y?>"><?=$months[$m-1]?> / <?=$y?></h2><div class="monthdays"><table id="monthdays">
 <tr class="header centered"><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th><tr>
     
 <?php 

@@ -28,23 +28,23 @@ window.onload = function() {
     var previousMonth = document.getElementById('past');
     var nextMonth = document.getElementById('future');
     var monthbutton = document.getElementById('monthbutton');
-    // var yearbutton = document.getElementById('yearbutton');
     
     todaybutton.addEventListener('click', today);
     previousMonth.addEventListener('click', thePrevious);
     nextMonth.addEventListener('click', theNext);
-    monthbutton.addEventListener('click', getMonth);
-    // yearbutton.addEventListener('click', getYear);
+    monthbutton.addEventListener('click', monthView);
 
-    getMonth();
+    monthView();
     
     var occasions = document.getElementsByClassName('occasion');
     for (i = 0; i < occasions.length; i++) {
         occasions[i].addEventListener('click', someDay);
     };
 
+
     assignClicks();
                                       
+
     function today() {     
         m = x.getMonth()+1;
         y = x.getFullYear();
@@ -61,14 +61,16 @@ window.onload = function() {
         todaybutton.classList.add("current");
     }
 
+
     function assignClicks() {
         occasions = document.getElementsByClassName('occasion');
         for (i = 0; i < occasions.length; i++) {
             occasions[i].addEventListener('click', someDay);
         };
-        document.getElementById("monthbutton").innerHTML = year[m];
+        document.getElementById("monthbutton").innerHTML = months[m];
     }
     
+
     function thePrevious() {
         m = parseInt(m) - 1;        
         if (m < 1) {
@@ -126,7 +128,7 @@ window.onload = function() {
         monthbutton.classList.remove("current");
     }
 
-    function getMonth() {     
+    function monthView() {     
         d = '0';
         getEvents();
         headline = months[m]+' '+y;
@@ -138,29 +140,11 @@ window.onload = function() {
         };
         if (calSwitch) {
             calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y, true);
+            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y+"&d=0", true);
             calSwitch.send(null);
         }
     }    
     
-    /*
-    function getYear() {
-        d = '0';
-        m = '0';
-        getEvents();
-        headline = y;
-        todaybutton.classList.remove("current");
-        yearbutton.classList.add("current");
-        temp.classList.remove("current");
-        if (calSwitch) {
-            calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y, true);
-            calSwitch.send(null);
-        }
-    }
-    */
-    
-    // what to do when server responded
 
     function listEvents() {
         lookUp.readyState;
@@ -171,6 +155,7 @@ window.onload = function() {
         document.getElementById('orgtitle').innerHTML = "Events "+headline;
     };    
         
+
     function switchView() {
         calSwitch.readyState;
         if (calSwitch.readyState == 4 && calSwitch.status == 200) {

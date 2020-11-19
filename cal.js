@@ -1,168 +1,254 @@
 window.onload = function() {
-    
-    var lookUp = new XMLHttpRequest();
-    var calSwitch = new XMLHttpRequest();
-    var headline = '';
-    var temp = '';
+        
+    var pullEvents = new XMLHttpRequest();
+    const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const today = new Date();
+    const monthDays = document.getElementsByTagName('td');
+    const next = document.getElementById('future');
+    const previous = document.getElementById('past');
+    const todayButton = document.getElementById('todaybutton');
+    const calendar = document.getElementById('calendar');
+    const organizer = document.getElementById('organizer');
+    const monthButton = document.getElementById('monthbutton');
+    const yearButton = document.getElementById('yearbutton');
+    const loader = document.getElementById('loader');
+    const headline = document.getElementById('headline');
 
-    x = new Date();
-    m = x.getMonth()+1;
-    y = x.getFullYear();
-    d = x.getDate();
-    
-    var months = new Array();
-    months[1] = "January";
-    months[2] = "February";
-    months[3] = "March";
-    months[4] = "April";
-    months[5] = "May";
-    months[6] = "June";
-    months[7] = "July";
-    months[8] = "August";
-    months[9] = "September";
-    months[10] = "October";
-    months[11] = "November";
-    months[12] = "December";
-    
-    var todaybutton = document.getElementById('todaybutton');
-    var previousMonth = document.getElementById('past');
-    var nextMonth = document.getElementById('future');
-    var monthbutton = document.getElementById('monthbutton');
-    
-    todaybutton.addEventListener('click', today);
-    previousMonth.addEventListener('click', thePrevious);
-    nextMonth.addEventListener('click', theNext);
-    monthbutton.addEventListener('click', monthView);
+    var view = 'month';
+    var d = today.getDate();
+    var m = today.getMonth();
+    var y = today.getFullYear();
 
-    monthView();
+    const todayCode = makeDayCode(today.getFullYear(), today.getMonth()+1, today.getDate());
+
+    next.addEventListener('click', createNext);
+    previous.addEventListener('click', createPrevious);
+    todayButton.addEventListener('click', getToday);
+    monthButton.addEventListener('click', monthView);
+    yearButton.addEventListener('click', yearView);
+
     
-    var occasions = document.getElementsByClassName('occasion');
-    for (i = 0; i < occasions.length; i++) {
-        occasions[i].addEventListener('click', someDay);
-    };
-
-
-    assignClicks();
-                                      
-
-    function today() {     
-        m = x.getMonth()+1;
-        y = x.getFullYear();
-        d = x.getDate();
-        getEvents();
-        if (calSwitch) {
-            calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y, true);
-            calSwitch.send(null);
-        };
-        headline = 'on '+d+'. '+months[m]+' '+y;
-        monthbutton.classList.remove("current");
-        if(temp) {temp.classList.remove("current");}
-        todaybutton.classList.add("current");
+    createMonth();
+    getEvents();
+    changeTitle();
+    
+    
+    function changeTitle() {
+        if (view == 'year') {            
+            document.getElementById('monthtitle').innerHTML = y;
+            next.setAttribute('uk-tooltip', 'title:Übersicht '+(y+1)+'; delay: 1000');
+            previous.setAttribute('uk-tooltip', 'title:Übersicht '+(y-1)+'; delay: 1000');
+        } else {
+            var fm = m+1;
+            if (fm == 12) {
+                fm = 0;
+            } 
+            var pm = m-1
+            if (pm == -1) {
+                pm = 11;
+            }
+            document.getElementById('monthtitle').innerHTML = leadingZeros((m+1))+' / '+y;
+            next.setAttribute('uk-tooltip', 'title:Übersicht '+(months[fm])+'; delay: 1000');
+            previous.setAttribute('uk-tooltip', 'title:Übersicht '+(months[pm])+'; delay: 1000');
+        }
+        yearButton.innerHTML = y;
+        monthButton.innerHTML = months[m];
     }
+    
+    function resultsTitle() {
+        if (view == 'today' || view == 'day') {
+            headline.innerHTML = 'Termine am '+d+'. '+months[m]+' '+y;
+        } else if (view == 'year') {
+            headline.innerHTML = 'Termine '+y;
+        } else {
+            headline.innerHTML = 'Termine im '+months[m]+' '+y;
+        }
+    }
+    
+    function createMonth() {
 
+        var prevMonth = new Date(y, m, 1); // 1.mm.yyyy
+        var lmd = prevMonth.getDay(); // 0-6
+        if (lmd==0) {lmd=7;}
+        lmd--;
 
+        var nextMonth = new Date(y, m+1, 0); // 28-31.mm.yyyy
+        var nmd = nextMonth.getDay(); // 0-6
+        if (nmd==0) {nmd=7;}
+        var nmd = 7-nmd;
+        
+        var t = nextMonth.getDate(); // 28-31
+
+        var i = 0;
+        var j = 1;
+        var n = 1;
+        var cssclass = '';
+
+        for (i=0;i<=monthDays.length;i++) {
+
+            if (i<lmd) {
+                monthDays[i].innerHTML = '&nbsp;';
+            } else if (i>=lmd && j<=t) {
+                dayCode = makeDayCode(y, m+1, j);
+                // new Date(y,m,j);
+                //dayCode = dayCode.getFullYear()+leadingZeros(dayCode.getMonth())+leadingZeros(dayCode.getDate());
+                if (dayCode == todayCode) {
+                    cssclass = cssclass+'today';       
+                } else if (dayCode < todayCode) {
+                    cssclass = cssclass+' past';
+                } else {
+                    cssclass = '';
+                }
+                monthDays[i].innerHTML = '<a id="'+leadingZeros(j)+'" class="centered occasion '+cssclass+'" href=#">'+j+'</a>';
+                j++; cssclass = '';
+            } else if (i>=lmd && j>=t && n<=nmd) {
+                monthDays[i].innerHTML = '&nbsp;';
+                n++;
+            } else {
+                if (monthDays[i]) {
+                    monthDays[i].innerHTML = '&nbsp;';
+                }
+            }
+
+        }
+
+        assignClicks();
+
+    }
+    
     function assignClicks() {
-        occasions = document.getElementsByClassName('occasion');
-        for (i = 0; i < occasions.length; i++) {
-            occasions[i].addEventListener('click', someDay);
+        for (i = 0; i < monthDays.length; i++) {
+            monthDays[i].firstChild.addEventListener('click', someDay);
         };
-        document.getElementById("monthbutton").innerHTML = months[m];
+        monthButton.innerHTML = months[m];
+        todayNumber = document.getElementById(leadingZeros(d));
     }
     
-
-    function thePrevious() {
-        m = parseInt(m) - 1;        
-        if (m < 1) {
-            y = parseInt(y) - 1;   
-            m = 12;
-        }
-        d = '0';
-        getEvents();        
-        if (calSwitch) {
-            calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y, true);
-            calSwitch.send(null);
-        }
-        headline = months[m]+' '+y;
-        todaybutton.classList.remove("current");
-        monthbutton.classList.add("current");
+    function addActive(element) {
+        element.classList.add('active');
     }
 
-    function theNext() {
-        m = parseInt(m) + 1;
-        if (m > 12) {
-            y = parseInt(y) + 1;
-            m = 1;
+    function removeActive() {
+        var actives = document.querySelectorAll('.active');
+        if (actives.length > 0) {
+            for (var u = 0; u < actives.length; u++) {
+                actives[u].classList.remove('active');
+            }        
         }
-        d = '0';
-        getEvents();        
-        if (calSwitch) {
-            calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y, true);
-            calSwitch.send(null);
+    }
+
+    function leadingZeros(x) { 
+        return (x < 10 ? '0' : '') + x;
+    }
+
+    function createPrevious() {
+        removeActive();
+        if (view == 'year') {
+            y--;
+            addActive(yearButton);
+        } else {
+            m--;
+            if (m == -1) {m=11; y--;}
+            createMonth();
+            addActive(monthButton);
+            view = 'month';
         }
-        headline = months[m]+' '+y;
-        todaybutton.classList.remove("current");
-        monthbutton.classList.add("current");
+        getEvents();
+    }
+
+    function createNext() {
+        removeActive();
+        if (view == 'year') {
+            y++;
+            addActive(yearButton);
+        } else {
+            m++;
+            if (m == 12) {m=0; y++}
+            createMonth();
+            addActive(monthButton);
+            view = 'month';
+        }
+        getEvents();
+    }
+
+    function getToday() {
+        if (view == 'year') {
+            organizer.style.display = 'none';            
+        }
+        view = 'today';
+        d = today.getDate();
+        m = today.getMonth();
+        y = today.getFullYear();
+        removeActive();
+        createMonth();
+        addActive(todayNumber);
+        addActive(todayButton);
+        getEvents();
+        calendar.style.display = 'unset';
+    }
+        
+    function someDay() {
+        view = 'day';
+        removeActive();
+        dayCode = makeDayCode(y,m+1,this.id);
+        if (dayCode == todayCode) {
+            
+            view = 'today';
+            addActive(todayButton);
+        }
+        d = this.id;
+        addActive(this);
+        getEvents();
     }    
     
+    function monthView() {
+        createMonth();
+        removeActive()
+        view = 'month';
+        yearButton.classList.remove('active');
+        this.classList.add('active');
+        getEvents();
+        calendar.style.display = 'unset';
+    }
+
+    function yearView() {
+        removeActive()
+        view = 'year';
+        monthButton.classList.remove('active');
+        this.classList.add('active');
+        getEvents();
+        calendar.style.display = 'none';
+    }
+
+    function makeDayCode(a, b, c) {
+        return a+leadingZeros(b)+leadingZeros(c);
+    }
     
     function getEvents() {
-        if (lookUp) {
-            lookUp.onreadystatechange = listEvents;
-            lookUp.open("GET", "../_organizer.php?m="+m+"&y="+y+"&d="+d, true);
-            lookUp.send(null);
+        changeTitle();
+        headline.innerHTML = 'Termine werden geladen…';
+        if (pullEvents) {
+            pullEvents.onreadystatechange = listEvents;
+            pullEvents.open("GET", "./?m="+m+"&y="+y+"&d="+d+"&view="+view, true);
+            pullEvents.send(null);
+            if (view == 'year') {
+                calendar.style.display = 'none';
+            } 
+            organizer.style.display = 'none';
         };
     }    
     
-    function someDay() {
-        for (i = 0; i < occasions.length; i++) {
-            occasions[i].classList.remove('current');
-        };
-        d = this.id;
-        getEvents();
-        headline = 'on '+d+'. '+months[m]+' '+y;
-        temp = this;
-        this.classList.add('current');
-        monthbutton.classList.remove("current");
-    }
-
-    function monthView() {     
-        d = '0';
-        getEvents();
-        headline = months[m]+' '+y;
-        todaybutton.classList.remove("current");
-        monthbutton.classList.add("current");
-        temp.classList.remove("current");
-        for (i = 0; i < occasions.length; i++) {
-            occasions[i].classList.remove('current');
-        };
-        if (calSwitch) {
-            calSwitch.onreadystatechange = switchView;
-            calSwitch.open("GET", "../_monthview.php?m="+m+"&y="+y+"&d=0", true);
-            calSwitch.send(null);
-        }
-    }    
-    
-
     function listEvents() {
-        lookUp.readyState;
-        if (lookUp.readyState == 4 && lookUp.status == 200) {
-            var str = lookUp.responseText;
+        pullEvents.readyState;
+        if (pullEvents.readyState == 4 && pullEvents.status == 200) {
+            resultsTitle();
+            var str = pullEvents.responseText;            
             document.getElementById("organizer").innerHTML = (str);
+            if (view == 'year') {
+                calendar.style.display = 'none';
+            } 
+            organizer.style.display = 'unset';
         };
-        document.getElementById('orgtitle').innerHTML = "Events "+headline;
-    };    
-        
-
-    function switchView() {
-        calSwitch.readyState;
-        if (calSwitch.readyState == 4 && calSwitch.status == 200) {
-            var str = calSwitch.responseText;
-            document.getElementById("calendar").innerHTML = (str);
-        }
-        assignClicks();
-    }    
+    };        
     
-};
+}
